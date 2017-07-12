@@ -1,0 +1,145 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <style type="text/css">
+        #myCanvas {
+            margin: 0 auto;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="myCanvas">当前浏览器不支持canvas组件请升级！</canvas>
+
+    <script src="https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js"></script>
+    <script type="text/javascript">
+        var c = document.getElementById('myCanvas');
+        var ctx = c.getContext('2d');
+
+        var mW = c.width = 300;
+        var mH = c.height = 300;
+        var lineWidth = 15;
+        ctx.setLineDash([2, 5]);
+        var r = mW / 2; //中间位置
+        var cR = r - 2 * lineWidth; //圆半径
+        var startAngle = -(1 / 2 * Math.PI); //开始角度
+        var endAngle = startAngle + 2 * Math.PI; //结束角度
+        var xAngle = 1 * (Math.PI / 10); //偏移角度量
+        var fontSize = 35; //字号大小
+        var tmpAngle = startAngle; //临时角度变量
+        var WEIGHT;
+
+        $(function () {
+            WeightInit();
+            Weighing(50, true);
+            setTimeout(function () {
+                Weighing(50, false);
+            }, 3000);
+        });
+
+        //初始化
+        var WeightInit = function () {
+            ctx.clearRect(0, 0, mW, mH);
+
+            ctx.beginPath();
+            ctx.lineWidth = lineWidth;
+            ctx.strokeStyle = '#ddd';
+            ctx.arc(r, r, cR, 0, Math.PI * 2, false);
+            ctx.stroke();
+            ctx.closePath();
+
+            //写字
+            ctx.fillStyle = '#1d89d5';
+            ctx.font = fontSize + 'px Microsoft Yahei';
+            ctx.textAlign = 'center';
+            ctx.fillText('0Kg', r, r + fontSize / 2);
+        };
+
+        //称重函数
+        // a_weight为实际称重重量
+        // isWeighing为称重状态，放上称重物为true，移除称重物为false
+        var Weighing = function (a_weight, isWeighing) {
+            WEIGHT = a_weight;
+            if (isWeighing) {
+                this.start();
+            }
+            else {
+                this.end();
+            }
+        };
+
+        //开始函数
+        var start = function () {
+            if (tmpAngle >= endAngle) {
+                return;
+            } else if (tmpAngle + xAngle > endAngle) {
+                tmpAngle = endAngle;
+            } else {
+                tmpAngle += xAngle;
+            }
+            ctx.clearRect(0, 0, mW, mH);
+
+            ctx.beginPath();
+            ctx.lineWidth = lineWidth;
+            ctx.strokeStyle = '#ddd';
+            ctx.arc(r, r, cR, 0, Math.PI * 2, false);
+            ctx.stroke();
+            ctx.closePath();
+
+            //画圈
+            ctx.beginPath();
+            ctx.lineWidth = lineWidth;
+            ctx.strokeStyle = '#1c86d1';
+            ctx.arc(r, r, cR, startAngle, tmpAngle);
+            ctx.stroke();
+            ctx.closePath();
+
+            //写字
+            ctx.fillStyle = '#1d89d5';
+            ctx.font = fontSize + 'px Microsoft Yahei';
+            ctx.textAlign = 'center';
+            ctx.fillText(Math.round((tmpAngle - startAngle) / (endAngle - startAngle) * WEIGHT) + 'Kg', r, r + fontSize / 2);
+
+            requestAnimationFrame(start);
+        };
+        //归零函数
+        var end = function () {
+            if (tmpAngle <= startAngle) {
+                return;
+            } else if (tmpAngle - xAngle < startAngle) {
+                tmpAngle = startAngle;
+            } else {
+                tmpAngle -= xAngle;
+            }
+            ctx.clearRect(0, 0, mW, mH);
+
+            ctx.beginPath();
+            ctx.lineWidth = lineWidth;
+            ctx.strokeStyle = '#ddd';
+            ctx.arc(r, r, cR, 0, Math.PI * 2, false);
+            ctx.stroke();
+            ctx.closePath();
+
+            //画圈
+            ctx.beginPath();
+            ctx.lineWidth = lineWidth;
+            ctx.strokeStyle = '#1c86d1';
+            ctx.arc(r, r, cR, startAngle, tmpAngle, false);
+            ctx.stroke();
+            ctx.closePath();
+
+            ////写字
+            ctx.fillStyle = '#1d89d5';
+            ctx.font = fontSize + 'px Microsoft Yahei';
+            ctx.textAlign = 'center';
+            ctx.fillText(Math.round((tmpAngle - startAngle) / (endAngle - startAngle) * WEIGHT) + 'Kg', r, r + fontSize / 2);
+
+            requestAnimationFrame(end);
+        };
+    </script>
+</body>
+
+</html>
